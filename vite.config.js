@@ -1,22 +1,14 @@
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), nodePolyfills()],
+  plugins: [react()],
   define: {
-    "process.env": {},
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      // Node.js global to browser globalThis
-      define: {
-        global: 'globalThis',
-      },
-    },
+    global: 'globalThis',
   },
   build: {
+    target: 'esnext', // Changed from es2020 to esnext to support BigInt
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -24,4 +16,15 @@ export default defineConfig({
       external: ['@assemblyscript/loader'],
     },
   },
-});
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext', // Changed to esnext
+      define: {
+        global: 'globalThis',
+      },
+      supported: {
+        bigint: true, // Explicitly enable BigInt support
+      },
+    },
+  },
+})
