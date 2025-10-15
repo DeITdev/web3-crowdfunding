@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   define: {
@@ -13,20 +12,15 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      external: [
-        '@assemblyscript/loader',
-        '@safe-globalThis/safe-ethers-adapters',
-        '@safe-global/safe-ethers-adapters'
-      ],
+      external: (id) => {
+        // Externalize all @safe-global packages (with or without 'This' suffix)
+        if (id.includes('@safe-global')) return true
+        if (id.includes('@assemblyscript/loader')) return true
+        return false
+      },
       onwarn(warning, warn) {
-        // Suppress "Module level directive" warnings
-        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
-          return
-        }
-        // Suppress unresolved import warnings for safe-global packages
-        if (warning.code === 'UNRESOLVED_IMPORT' && warning.message.includes('@safe-global')) {
-          return
-        }
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
+        if (warning.code === 'UNRESOLVED_IMPORT' && warning.message.includes('@safe-global')) return
         warn(warning)
       }
     },
